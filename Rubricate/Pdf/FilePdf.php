@@ -1,13 +1,8 @@
 <?php
-/*******************************************************************************
- * FPDF                                                                         *
- *                                                                              *
- * Version: 1.86                                                                *
- * Date:    2023-06-25                                                          *
- * Author:  Olivier PLATHEY                                                     *
- *******************************************************************************/
 
-class FPDF
+namespace Rubricate\Pdf;
+
+class FilePdf
 {
     const VERSION = '1.86';
     protected $page;               // current page number
