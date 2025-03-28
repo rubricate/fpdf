@@ -100,7 +100,7 @@ class FilePdf
         if(defined('FPDF_FONTPATH'))
             $this->fontpath = FPDF_FONTPATH;
         else
-            $this->fontpath = dirname(__FILE__).'/font/';
+            $this->fontpath = dirname(dirname(dirname(__FILE__))) .'/font/';
         // Core fonts
         $this->CoreFonts = array('courier', 'helvetica', 'times', 'symbol', 'zapfdingbats');
         // Scale factor
