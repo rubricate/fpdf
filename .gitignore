@@ -1,0 +1,6 @@
+*.vim
+vimspector.json
+tags
+main.php
+*1530*
+note/
