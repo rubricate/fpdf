@@ -11,8 +11,20 @@ This component is a fork of (FPDF - Free PDF) and in this project the original c
 been renamed to (FilePdf). You can use it for any kind of use and modify it to 
 suit your needs.
 
+#### Original Version: v1.8.6:
 ```
-$ composer require rubricate/fpdf
+$ composer require rubricate/fpdf:^1.8
 ```
-
 Documentation is at https://rubricate.github.io/components/pdf
+
+## Credits
+
+- [Olivier Plathey](http://fpdf.org/) (Developer Creator)
+- [Estefanio N Santos](https://github.com/estefanionsantos) (Developer)
+- [Jan Slabon](https://github.com/JanSlabon) (Developer)
+- [All Contributors](https://github.com/rubricate/pdf/contributors) (Let's program)
+
+## License
+
+The MIT License (MIT). Please see [License File](https://github.com/rubricate/pdf/master/LICENSE) for more
+information.
