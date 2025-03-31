@@ -851,7 +851,9 @@ class FilePdf
                 $ns++;
             }
 
-            $l += $cw[$c];
+            if(isset($cw[$c])){
+                $l += $cw[$c];
+            }
 
             if ($l <= $wmax) {
                 $i++;
