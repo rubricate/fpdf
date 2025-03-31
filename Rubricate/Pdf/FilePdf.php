@@ -1480,6 +1480,12 @@ class FilePdf
 
     protected function _parsepng($file): array
     {
+        if (!file_exists($file)) {
+            throw new InvalidArgumentException(
+                $this->fpdfError . sprintf('Image "%s" not found', $file)
+            );
+        }
+
         $f = fopen($file,'rb');
 
         if(!$f){
