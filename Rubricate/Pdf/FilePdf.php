@@ -563,7 +563,7 @@ class FilePdf
         $this->links[$link] = [$page, $y];
     }
 
-    public function Link(float $x, float $y, float $w, float $h, string $link): void
+    public function Link(float $x, float $y, float $w, float $h, int|string $link): void
     {
         // Put a link on the page
         $this->PageLinks[$this->page][] = [
@@ -610,7 +610,7 @@ class FilePdf
         float $w, float $h = 0, 
         string $txt = '', string|int $border = 0, 
         int $ln = 0, string $align = '', 
-        bool $fill = false, string $link = ''
+        bool $fill = false, int|string $link = ''
 
     ): void {
         $k = $this->k;
@@ -908,7 +908,7 @@ class FilePdf
         $this->x = $this->lMargin;
     }
 
-    public function Write(float $h, string $txt, string $link = ''): void
+    public function Write(float $h, string $txt, int|string $link = ''): void
     {
         if (!isset($this->CurrentFont)) {
             throw new InvalidArgumentException($this->fpdfError . 'No font has been set');
@@ -1017,7 +1017,7 @@ class FilePdf
         float $w = 0,
         float $h = 0,
         string $type = '', 
-        string $link = ''
+        int|string $link = ''
 
     ): void {
 
