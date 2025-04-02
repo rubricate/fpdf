@@ -146,24 +146,28 @@ class FilePdf
         $this->PDFVersion = '1.3';
     }
 
-    public function setMargins(float $left, float $top, ?float $right = null): void
+    public function SetMargins(float $left, float $top, ?float $right = null): void
     {
         $this->lMargin = $left;
         $this->tMargin = $top;
         $this->rMargin = $right ?? $left;
     }
 
-    public function setLeftMargin(float $margin): void
+    public function SetLeftMargin(float $margin): void
     {
         $this->lMargin = $margin;
+
+        if($this->page > 0 && $this->x < $margin){
+            $this->x = $margin;
+        }
     }
 
-    public function setTopMargin(float $margin): void
+    public function SetTopMargin(float $margin): void
     {
         $this->tMargin = $margin;
     }
 
-    public function setRightMargin(float $margin): void
+    public function SetRightMargin(float $margin): void
     {
         $this->rMargin = $margin;
     }
@@ -175,7 +179,7 @@ class FilePdf
         $this->PageBreakTrigger = $this->h-$margin;
     }
 
-    public function setDisplayMode(string|int $zoom, string $layout = 'default'): void
+    public function SetDisplayMode(string|int $zoom, string $layout = 'default'): void
     {
         $validZoomModes = ['fullpage', 'fullwidth', 'real', 'default'];
         $validLayoutModes = ['single', 'continuous', 'two', 'default'];
