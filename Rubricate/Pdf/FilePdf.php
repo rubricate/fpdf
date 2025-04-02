@@ -930,74 +930,80 @@ class FilePdf
         $l = 0;
         $nl = 1;
 
-        while ($i < $nb) {
+        while($i < $nb) {
+
             $c = $s[$i];
 
-            if ($c === "\n") {
+            if($c == "\n"){
+
                 $this->Cell($w, $h, substr($s, $j, $i - $j), 0, 2, '', false, $link);
                 $i++;
                 $sep = -1;
                 $j = $i;
                 $l = 0;
-                $nl++;
 
-                if ($nl === 1) {
+                if($nl == 1){
+
                     $this->x = $this->lMargin;
                     $w = $this->w - $this->rMargin - $this->x;
                     $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
                 }
-
+                $nl++;
                 continue;
             }
-
-            if ($c === ' ') {
+            if($c ==' '){
                 $sep = $i;
             }
 
-            $l += $cw[$c];
-
-            if ($l <= $wmax) {
-                $i++;
-                continue;
+            if (isset($cw[$c])) {
+                $l += $cw[$c];
             }
 
-            // Automatic line break
-            if ($sep === -1) {
-                if ($this->x > $this->lMargin) {
+            if($l > $wmax){
+
+                if($sep == -1){
+
+                    if($this->x > $this->lMargin){
+
+                        $this->x = $this->lMargin;
+                        $this->y += $h;
+                        $w = $this->w - $this->rMargin - $this->x;
+                        $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+                        $i++;
+                        $nl++;
+                        continue;
+                    }
+
+                    if($i == $j){
+                        $i++;
+                    }
+
+                    $this->Cell($w, $h, substr($s, $j, $i - $j), 0,2, '', false, $link);
+
+                }else {
+
+                    $this->Cell($w, $h, substr($s, $j, $sep - $j),0,2, '', false, $link);
+                    $i = $sep+1;
+                }
+
+                $sep = -1;
+                $j = $i;
+                $l = 0;
+
+                if($nl == 1){
+
                     $this->x = $this->lMargin;
-                    $this->y += $h;
                     $w = $this->w - $this->rMargin - $this->x;
-                    $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
-                    $i++;
-                    $nl++;
-                    continue;
+                    $wmax = ($w -2 * $this->cMargin) * 1000 / $this->FontSize;
                 }
 
-                if ($i === $j) {
-                    $i++;
-                }
+                $nl++;
 
-                $this->Cell($w, $h, substr($s, $j, $i - $j), 0, 2, '', false, $link);
-            }
-
-            if ($sep !== -1) {
-                $this->Cell($w, $h, substr($s, $j, $sep - $j), 0, 2, '', false, $link);
-                $i = $sep + 1;
-            }
-
-            $sep = -1;
-            $j = $i;
-            $l = 0;
-            $nl++;
-
-            if ($nl === 1) {
-                $this->x = $this->lMargin;
-                $w = $this->w - $this->rMargin - $this->x;
-                $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+            } else{
+                $i++;
             }
         }
 
-        // Last chunk
         if ($i !== $j) {
             $this->Cell($l / 1000 * $this->FontSize, $h, substr($s, $j), 0, 0, '', false, $link);
         }
