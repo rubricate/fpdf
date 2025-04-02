@@ -56,7 +56,7 @@ class FilePdf
     protected float $k = 0;
     protected string $CurOrientation = '';
     protected array $CurPageSize = [];
-    protected int $CurRotation = 0;
+    protected int $CurRotation = 0; // Page rotation
     protected bool $iconv;
     protected string $fontpath = '';
     protected array $CoreFonts = [];
@@ -93,7 +93,6 @@ class FilePdf
         $this->DefPageSize = $size;
         $this->CurPageSize = $size;
 
-        // Page orientation
         $orientation = strtolower($orientation);
 
         if ($orientation === 'p' || $orientation === 'portrait') {
@@ -117,33 +116,17 @@ class FilePdf
         $this->wPt = $this->w * $this->k;
         $this->hPt = $this->h * $this->k;
 
-        // Page rotation
         $this->CurRotation = 0;
 
-        // Page margins (1 cm)
         $margin = 28.35 / $this->k;
         $this->SetMargins($margin, $margin);
-
-        // Interior cell margin (1 mm)
         $this->cMargin = $margin/10;
-
-        // Line width (0.2 mm)
         $this->LineWidth = .567/$this->k;
-
-        // Automatic page break
         $this->SetAutoPageBreak(true, 2 * $margin);
-
-        // Default display mode
         $this->SetDisplayMode('default');
-
-        // Enable compression
         $this->SetCompression(true);
-
-        // Metadata
         $this->metadata = ['Producer' => 'FPDF ' . self::VERSION];
 
-        // Set default PDF version number
-        $this->PDFVersion = '1.3';
     }
 
     public function SetMargins(float $left, float $top, ?float $right = null): void
