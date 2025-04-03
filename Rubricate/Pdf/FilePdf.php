@@ -13,36 +13,36 @@ class FilePdf
     protected array $offsets = [];         // array of object offsets
     protected string $buffer = '';         // buffer holding in-memory PDF
     protected array $pages = [];           // array containing pages
-    protected array $PageInfo = [];        // page-related data
+    protected array $pageInfo = [];        // page-related data
     protected array $fonts = [];           // array of used fonts
-    protected array $FontFiles = [];       // array of font files
+    protected array $fontFiles = [];       // array of font files
     protected array $encodings = [];       // array of encodings
     protected array $cmaps = [];           // array of ToUnicode CMaps
     protected array $images = [];          // array of used images
     protected array $links = [];           // array of internal links
-    protected bool $InHeader = false;      // flag set when processing header
-    protected bool $InFooter = false;      // flag set when processing footer
+    protected bool $inHeader = false;      // flag set when processing header
+    protected bool $inFooter = false;      // flag set when processing footer
     protected float $lasth = 0;            // height of last printed cell
-    protected string $FontFamily = '';     // current font family
-    protected string $FontStyle = '';      // current font style
+    protected string $fontFamily = '';     // current font family
+    protected string $fontStyle = '';      // current font style
     protected bool $underline = false;     // underlining flag
-    protected array $CurrentFont = [];     // current font info
-    protected float $FontSizePt = 12.0;    // current font size in points
-    protected float $FontSize = 0.0;       // current font size in user unit
-    protected string $DrawColor = '0 G';   // commands for drawing color
-    protected string $FillColor = '0 g';   // commands for filling color
-    protected string $TextColor = '0 g';   // commands for text color
-    protected bool $ColorFlag = false;     // indicates whether fill and text colors are different
-    protected bool $WithAlpha = false;     // indicates whether alpha channel is used
+    protected array $currentFont = [];     // current font info
+    protected float $fontSizePt = 12.0;    // current font size in points
+    protected float $fontSize = 0.0;       // current font size in user unit
+    protected string $drawColor = '0 G';   // commands for drawing color
+    protected string $fillColor = '0 g';   // commands for filling color
+    protected string $textColor = '0 g';   // commands for text color
+    protected bool $colorFlag = false;     // indicates whether fill and text colors are different
+    protected bool $withAlpha = false;     // indicates whether alpha channel is used
     protected float $ws = 0.0;             // word spacing
-    protected bool $AutoPageBreak = true;  // automatic page breaking
-    protected float $PageBreakTrigger = 0.0; // threshold used to trigger page breaks
-    protected string $AliasNbPages = '';   // alias for total number of pages
-    protected string $ZoomMode = '';       // zoom display mode
-    protected string $LayoutMode = '';     // layout display mode
+    protected bool $autoPageBreak = true;  // automatic page breaking
+    protected float $pageBreakTrigger = 0.0; // threshold used to trigger page breaks
+    protected string $aliasNbPages = '';   // alias for total number of pages
+    protected string $zoomMode = '';       // zoom display mode
+    protected string $layoutMode = '';     // layout display mode
     protected array $metadata = [];        // document properties
-    protected string $CreationDate = '';   // document creation date
-    protected string $PDFVersion = '1.3';  // PDF version number
+    protected string $creationDate = '';   // document creation date
+    protected string $pdfVersion = '1.3';  // PDF version number
 
     protected float $lMargin = 2;
     protected float $tMargin = 2;
@@ -54,15 +54,15 @@ class FilePdf
     protected float $w = 0;
     protected float $h = 0;
     protected float $k = 0;
-    protected string $CurOrientation = '';
-    protected array $CurPageSize = [];
-    protected int $CurRotation = 0; // Page rotation
+    protected string $curOrientation = '';
+    protected array $curPageSize = [];
+    protected int $curRotation = 0; // Page rotation
     protected bool $iconv;
     protected string $fontpath = '';
-    protected array $CoreFonts = [];
-    protected float $LineWidth = 2.0;
-    protected string $DefOrientation = 'P';
-    protected array $DefPageSize = [];
+    protected array $coreFonts = [];
+    protected float $lineWidth = 2.0;
+    protected string $defOrientation = 'P';
+    protected array $defPageSize = [];
     private $fpdfError = "Error FPDF: " ;
 
     public function __construct(string $orientation = 'P', string $unit = 'mm', string $size = 'A4')
@@ -71,7 +71,7 @@ class FilePdf
         $this->fontpath = defined('FPDF_FONTPATH')? FPDF_FONTPATH :
             dirname(dirname(dirname(__FILE__))) . '/font/';
 
-        $this->CoreFonts = ['courier', 'helvetica', 'times', 'symbol', 'zapfdingbats'];
+        $this->coreFonts = ['courier', 'helvetica', 'times', 'symbol', 'zapfdingbats'];
 
         $this->k = match ($unit) {
             'pt' => 1,
@@ -90,20 +90,20 @@ class FilePdf
         ];
 
         $size = $this->_getpagesize($size);
-        $this->DefPageSize = $size;
-        $this->CurPageSize = $size;
+        $this->defPageSize = $size;
+        $this->curPageSize = $size;
 
         $orientation = strtolower($orientation);
 
         if ($orientation === 'p' || $orientation === 'portrait') {
 
-            $this->DefOrientation = 'P';
+            $this->defOrientation = 'P';
             $this->w = $size[0];
             $this->h = $size[1];
 
         } elseif ($orientation === 'l' || $orientation === 'landscape') {
 
-            $this->DefOrientation = 'L';
+            $this->defOrientation = 'L';
             $this->w = $size[1];
             $this->h = $size[0];
 
@@ -112,16 +112,16 @@ class FilePdf
             throw new InvalidArgumentException('Incorrect orientation: ' . $orientation);
         }
 
-        $this->CurOrientation = $this->DefOrientation;
+        $this->curOrientation = $this->defOrientation;
         $this->wPt = $this->w * $this->k;
         $this->hPt = $this->h * $this->k;
 
-        $this->CurRotation = 0;
+        $this->curRotation = 0;
 
         $margin = 28.35 / $this->k;
         $this->SetMargins($margin, $margin);
         $this->cMargin = $margin/10;
-        $this->LineWidth = .567/$this->k;
+        $this->lineWidth = .567/$this->k;
         $this->SetAutoPageBreak(true, 2 * $margin);
         $this->SetDisplayMode('default');
         $this->SetCompression(true);
@@ -157,9 +157,9 @@ class FilePdf
 
     public function SetAutoPageBreak(string $auto, int $margin = 0): void
     {
-        $this->AutoPageBreak = $auto;
+        $this->autoPageBreak = $auto;
         $this->bMargin = $margin;
-        $this->PageBreakTrigger = $this->h-$margin;
+        $this->pageBreakTrigger = ($this->h - $margin);
     }
 
     public function SetDisplayMode(string|int $zoom, string $layout = 'default'): void
@@ -168,13 +168,13 @@ class FilePdf
         $validLayoutModes = ['single', 'continuous', 'two', 'default'];
 
         if (is_int($zoom) || in_array($zoom, $validZoomModes, true)) {
-            $this->ZoomMode = $zoom;
+            $this->zoomMode = $zoom;
         } else {
             throw new InvalidArgumentException($this->fpdfError . $this->fpdfError . "Incorrect zoom display mode: {$zoom}");
         }
 
         if (in_array($layout, $validLayoutModes, true)) {
-            $this->LayoutMode = $layout;
+            $this->layoutMode = $layout;
         } else {
             throw new InvalidArgumentException($this->fpdfError . "Incorrect layout display mode: {$layout}");
         }
@@ -217,7 +217,7 @@ class FilePdf
 
     public function AliasNbPages(string $alias = '{nb}'): void
     {
-        $this->AliasNbPages = $alias;
+        $this->aliasNbPages = $alias;
     }
 
     public function Close()
@@ -228,9 +228,9 @@ class FilePdf
         if ($this->page === 0) {
             $this->AddPage();
         }
-        $this->InFooter = true;
+        $this->inFooter = true;
         $this->Footer();
-        $this->InFooter = false;
+        $this->inFooter = false;
         $this->_endpage();
         $this->_enddoc();
     }
@@ -241,54 +241,54 @@ class FilePdf
             throw new InvalidArgumentException($this->fpdfError . 'The document is closed');
         }
 
-        $family = $this->FontFamily;
-        $style = $this->FontStyle.($this->underline ? 'U' : '');
-        $fontsize = $this->FontSizePt;
-        $lw = $this->LineWidth;
-        $dc = $this->DrawColor;
-        $fc = $this->FillColor;
-        $tc = $this->TextColor;
-        $cf = $this->ColorFlag;
+        $family = $this->fontFamily;
+        $style = $this->fontStyle.($this->underline ? 'U' : '');
+        $fontsize = $this->fontSizePt;
+        $lw = $this->lineWidth;
+        $dc = $this->drawColor;
+        $fc = $this->fillColor;
+        $tc = $this->textColor;
+        $cf = $this->colorFlag;
 
         if($this->page > 0){
 
-            $this->InFooter = true;
+            $this->inFooter = true;
             $this->Footer();
-            $this->InFooter = false;
+            $this->inFooter = false;
             $this->_endpage();
         }
 
         $this->_beginpage($orientation,$size,$rotation);
         $this->_out('2 J');
-        $this->LineWidth = $lw;
+        $this->lineWidth = $lw;
         $this->_out(sprintf('%.2F w',$lw*$this->k));
 
         if($family){
             $this->SetFont($family,$style,$fontsize);
         }
 
-        $this->DrawColor = $dc;
+        $this->drawColor = $dc;
 
         if($dc != '0 G'){
             $this->_out($dc);
         }
 
-        $this->FillColor = $fc;
+        $this->fillColor = $fc;
 
         if($fc != '0 g'){
             $this->_out($fc);
         }
 
-        $this->TextColor = $tc;
-        $this->ColorFlag = $cf;
+        $this->textColor = $tc;
+        $this->colorFlag = $cf;
 
-        $this->InHeader = true;
+        $this->inHeader = true;
         $this->Header();
-        $this->InHeader = false;
+        $this->inHeader = false;
 
-        if($this->LineWidth!=$lw) {
+        if($this->lineWidth!=$lw) {
 
-            $this->LineWidth = $lw;
+            $this->lineWidth = $lw;
             $this->_out(sprintf('%.2F w',$lw*$this->k));
         }
 
@@ -296,16 +296,16 @@ class FilePdf
             $this->SetFont($family,$style,$fontsize);
         }
 
-        if($this->DrawColor!=$dc){
-            $this->DrawColor = $dc;
+        if($this->drawColor!=$dc){
+            $this->drawColor = $dc;
             $this->_out($dc);
         }
-        if($this->FillColor!=$fc){
-            $this->FillColor = $fc;
+        if($this->fillColor!=$fc){
+            $this->fillColor = $fc;
             $this->_out($fc);
         }
-        $this->TextColor = $tc;
-        $this->ColorFlag = $cf;
+        $this->textColor = $tc;
+        $this->colorFlag = $cf;
     }
 
     public function Header()
@@ -326,41 +326,41 @@ class FilePdf
 
     public function SetDrawColor(int $r, ?int $g = null, ?int $b = null): void
     {
-        $this->DrawColor = ($g === null || $b === null)
+        $this->drawColor = ($g === null || $b === null)
             ? sprintf('%.3F G', $r / 255)
             : sprintf('%.3F %.3F %.3F RG', $r / 255, $g / 255, $b / 255);
 
         if($this->page>0){
-            $this->_out($this->DrawColor);
+            $this->_out($this->drawColor);
         }
     }
 
     public function SetFillColor(int $r, ?int $g = null, ?int $b = null): void
     {
-        $this->FillColor = ($g === null || $b === null)
+        $this->fillColor = ($g === null || $b === null)
             ? sprintf('%.3F g', $r / 255)
             : sprintf('%.3F %.3F %.3F rg', $r / 255, $g / 255, $b / 255);
 
-        $this->ColorFlag = ($this->FillColor != $this->TextColor);
+        $this->colorFlag = ($this->fillColor != $this->textColor);
 
         if($this->page>0){
-            $this->_out($this->FillColor);
+            $this->_out($this->fillColor);
         }
     }
 
     public function SetTextColor(int $r, ?int $g = null, ?int $b = null): void
     {
-        $this->TextColor = ($g === null || $b === null)
+        $this->textColor = ($g === null || $b === null)
             ? sprintf('%.3F g', $r / 255)
             : sprintf('%.3F %.3F %.3F rg', $r / 255, $g / 255, $b / 255);
 
-        $this->ColorFlag = ($this->FillColor != $this->TextColor);
+        $this->colorFlag = ($this->fillColor != $this->textColor);
     }
 
     public function GetStringWidth(string $s)
     {
         // Get width of a string in the current font
-        $cw = $this->CurrentFont['cw'];
+        $cw = $this->currentFont['cw'];
         $w = 0;
         $l = strlen($s);
 
@@ -368,12 +368,12 @@ class FilePdf
             $w += $cw[$s[$i]];
         }
 
-        return $w * $this->FontSize/1000;
+        return $w * $this->fontSize/1000;
     }
 
     public function SetLineWidth(int $width): void
     {
-        $this->LineWidth = $width;
+        $this->lineWidth = $width;
 
         if($this->page > 0){
             $this->_out(sprintf('%.2F w', $width * $this->k));
@@ -436,10 +436,10 @@ class FilePdf
             $fileLength2 = ['length1'=>$info['originalsize']];
 
             $info['file'] = $dir . $info['file'];
-            $this->FontFiles[$info['file']] = $fileLength1;
+            $this->fontFiles[$info['file']] = $fileLength1;
 
             if($info['type']=='TrueType'){
-                $this->FontFiles[$info['file']] = $fileLength2;
+                $this->fontFiles[$info['file']] = $fileLength2;
             }
         }
 
@@ -448,7 +448,7 @@ class FilePdf
 
     public function SetFont(string $family, string $style='', int $size = 0): void
     {
-        $family = ($family == '')? $this->FontFamily: strtolower($family);
+        $family = ($family == '')? $this->fontFamily: strtolower($family);
 
         $style = strtoupper($style);
         $this->underline = false;
@@ -463,13 +463,13 @@ class FilePdf
         }
 
         if($size == 0){
-            $size = $this->FontSizePt;
+            $size = $this->fontSizePt;
         }
 
         if(
-            $this->FontFamily == $family && 
-            $this->FontStyle == $style && 
-            $this->FontSizePt == $size
+            $this->fontFamily == $family && 
+            $this->fontStyle == $style && 
+            $this->fontSizePt == $size
         ){
             return;
         }
@@ -483,7 +483,7 @@ class FilePdf
                 $family = 'helvetica';
             }
 
-            if(!in_array($family, $this->CoreFonts)){
+            if(!in_array($family, $this->coreFonts)){
                 throw new InvalidArgumentException(
                     $this->fpdfError . 'Undefined font: '.$family.' '.$style
                 );
@@ -501,32 +501,32 @@ class FilePdf
 
         }
 
-        $this->FontFamily = $family;
-        $this->FontStyle = $style;
-        $this->FontSizePt = $size;
-        $this->FontSize = $size/$this->k;
-        $this->CurrentFont = $this->fonts[$fontkey];
+        $this->fontFamily = $family;
+        $this->fontStyle = $style;
+        $this->fontSizePt = $size;
+        $this->fontSize = $size/$this->k;
+        $this->currentFont = $this->fonts[$fontkey];
 
         if($this->page>0){
 
             $this->_out(
                 sprintf('BT /F%d %.2F Tf ET', 
-                $this->CurrentFont['i'], 
-                $this->FontSizePt
+                $this->currentFont['i'], 
+                $this->fontSizePt
                 ));
         }
     }
 
     public function SetFontSize(float $size): void
     {
-        $this->FontSizePt = $size;
-        $this->FontSize = $size/$this->k;
+        $this->fontSizePt = $size;
+        $this->fontSize = $size/$this->k;
 
-        if($this->page>0 && isset($this->CurrentFont)){
+        if($this->page>0 && isset($this->currentFont)){
             $this->_out(sprintf(
                 'BT /F%d %.2F Tf ET', 
-                $this->CurrentFont['i'],
-                $this->FontSizePt
+                $this->currentFont['i'],
+                $this->fontSizePt
             ));
         }
     }
@@ -564,7 +564,7 @@ class FilePdf
 
     public function Text(float $x, float $y, string $txt): void
     {
-        if (!isset($this->CurrentFont)) {
+        if (!isset($this->currentFont)) {
             throw new InvalidArgumentException($this->fpdfError . 'No font has been set');
         }
 
@@ -579,8 +579,8 @@ class FilePdf
             $s .= ' ' . $this->_dounderline($x, $y, $txt);
         }
 
-        if ($this->ColorFlag) {
-            $s = 'q ' . $this->TextColor . ' ' . $s . ' Q';
+        if ($this->colorFlag) {
+            $s = 'q ' . $this->textColor . ' ' . $s . ' Q';
         }
 
         $this->_out($s);
@@ -589,7 +589,7 @@ class FilePdf
 
     public function AcceptPageBreak(): bool
     {
-        return $this->AutoPageBreak;
+        return $this->autoPageBreak;
     }
 
     public function Cell(
@@ -603,8 +603,8 @@ class FilePdf
         $k = $this->k;
 
         if (
-            $this->y + $h > $this->PageBreakTrigger && 
-            !$this->InHeader && !$this->InFooter && 
+            $this->y + $h > $this->pageBreakTrigger && 
+            !$this->inHeader && !$this->inFooter && 
             $this->AcceptPageBreak()
         ) {
             // Automatic page break
@@ -616,7 +616,7 @@ class FilePdf
                 $this->_out('0 Tw');
             }
 
-            $this->AddPage($this->CurOrientation, $this->CurPageSize, $this->CurRotation);
+            $this->AddPage($this->curOrientation, $this->curPageSize, $this->curRotation);
             $this->x = $x;
 
             if ($ws > 0) {
@@ -688,7 +688,7 @@ class FilePdf
         }
 
         if ($txt !== '') {
-            if (!isset($this->CurrentFont)) {
+            if (!isset($this->currentFont)) {
                 throw new InvalidArgumentException($this->fpdfError . 'No font has been set');
             }
 
@@ -698,33 +698,33 @@ class FilePdf
                 default => $this->cMargin
             };
 
-            if ($this->ColorFlag) {
-                $s .= 'q ' . $this->TextColor . ' ';
+            if ($this->colorFlag) {
+                $s .= 'q ' . $this->textColor . ' ';
             }
 
             $s .= sprintf(
                 'BT %.2F %.2F Td (%s) Tj ET',
                 ($this->x + $dx) * $k,
-                ($this->h - ($this->y + 0.5 * $h + 0.3 * $this->FontSize)) * $k,
+                ($this->h - ($this->y + 0.5 * $h + 0.3 * $this->fontSize)) * $k,
                 $this->_escape($txt)
             );
 
             if ($this->underline) {
                 $s .= ' ' . $this->_dounderline(
-                    $this->x + $dx, $this->y + 0.5 * $h + 0.3 * $this->FontSize, $txt
+                    $this->x + $dx, $this->y + 0.5 * $h + 0.3 * $this->fontSize, $txt
                 );
             }
 
-            if ($this->ColorFlag) {
+            if ($this->colorFlag) {
                 $s .= ' Q';
             }
 
             if ($link) {
                 $this->Link(
                     $this->x + $dx, 
-                    $this->y + 0.5 * $h - 0.5 * $this->FontSize, 
+                    $this->y + 0.5 * $h - 0.5 * $this->fontSize, 
                     $this->GetStringWidth($txt), 
-                    $this->FontSize, 
+                    $this->fontSize, 
                     $link
                 );
             }
@@ -766,17 +766,17 @@ class FilePdf
         $ns = 0;
         $nl = 1;
 
-        if (!isset($this->CurrentFont)) {
+        if (!isset($this->currentFont)) {
             throw new InvalidArgumentException($this->fpdfError . 'No font has been set');
         }
 
-        $cw = $this->CurrentFont['cw'];
+        $cw = $this->currentFont['cw'];
 
         if ($w == 0) {
             $w = $this->w - $this->rMargin - $this->x;
         }
 
-        $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+        $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->fontSize;
         $s = str_replace("\r", '', (string) $txt);
         $nb = strlen($s);
 
@@ -862,7 +862,7 @@ class FilePdf
             } else {
 
                 if ($align == 'J') {
-                    $this->ws = ($ns > 1) ? ($wmax - $ls) / 1000 * $this->FontSize / ($ns - 1) : 0;
+                    $this->ws = ($ns > 1) ? ($wmax - $ls) / 1000 * $this->fontSize / ($ns - 1) : 0;
                     $this->_out(sprintf('%.3F Tw', $this->ws * $this->k));
                 }
 
@@ -897,13 +897,13 @@ class FilePdf
 
     public function Write(float $h, string $txt, int|string $link = ''): void
     {
-        if (!isset($this->CurrentFont)) {
+        if (!isset($this->currentFont)) {
             throw new InvalidArgumentException($this->fpdfError . 'No font has been set');
         }
 
-        $cw = $this->CurrentFont['cw'];
+        $cw = $this->currentFont['cw'];
         $w = $this->w - $this->rMargin - $this->x;
-        $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+        $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->fontSize;
         $s = str_replace("\r", '', (string) $txt);
         $nb = strlen($s);
 
@@ -929,7 +929,7 @@ class FilePdf
 
                     $this->x = $this->lMargin;
                     $w = $this->w - $this->rMargin - $this->x;
-                    $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+                    $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->fontSize;
                 }
                 $nl++;
                 continue;
@@ -951,7 +951,7 @@ class FilePdf
                         $this->x = $this->lMargin;
                         $this->y += $h;
                         $w = $this->w - $this->rMargin - $this->x;
-                        $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+                        $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->fontSize;
                         $i++;
                         $nl++;
                         continue;
@@ -977,7 +977,7 @@ class FilePdf
 
                     $this->x = $this->lMargin;
                     $w = $this->w - $this->rMargin - $this->x;
-                    $wmax = ($w -2 * $this->cMargin) * 1000 / $this->FontSize;
+                    $wmax = ($w -2 * $this->cMargin) * 1000 / $this->fontSize;
                 }
 
                 $nl++;
@@ -988,7 +988,7 @@ class FilePdf
         }
 
         if ($i !== $j) {
-            $this->Cell($l / 1000 * $this->FontSize, $h, substr($s, $j), 0, 0, '', false, $link);
+            $this->Cell($l / 1000 * $this->fontSize, $h, substr($s, $j), 0, 0, '', false, $link);
         }
     }
 
@@ -1069,14 +1069,14 @@ class FilePdf
         // Flowing mode
         if ($y === null) {
             if (
-                $this->y + $h > $this->PageBreakTrigger && 
-                !$this->InHeader && 
-                !$this->InFooter && 
+                $this->y + $h > $this->pageBreakTrigger && 
+                !$this->inHeader && 
+                !$this->inFooter && 
                 $this->AcceptPageBreak()
 
             ) {
                 $x2 = $this->x;
-                $this->AddPage($this->CurOrientation, $this->CurPageSize, $this->CurRotation);
+                $this->AddPage($this->curOrientation, $this->curPageSize, $this->curRotation);
                 $this->x = $x2;
             }
 
@@ -1251,16 +1251,16 @@ class FilePdf
         $this->state = 2;
         $this->x = $this->lMargin;
         $this->y = $this->tMargin;
-        $this->FontFamily = '';
+        $this->fontFamily = '';
 
         // Check page size and orientation
-        $orientation = $orientation === '' ? $this->DefOrientation : strtoupper($orientation[0]);
-        $size = $size === '' ? $this->DefPageSize : $this->_getpagesize($size);
+        $orientation = $orientation === '' ? $this->defOrientation : strtoupper($orientation[0]);
+        $size = $size === '' ? $this->defPageSize : $this->_getpagesize($size);
 
         if (
-            $orientation !== $this->CurOrientation || 
-            $size[0] !== $this->CurPageSize[0] || 
-            $size[1] !== $this->CurPageSize[1])
+            $orientation !== $this->curOrientation || 
+            $size[0] !== $this->curPageSize[0] || 
+            $size[1] !== $this->curPageSize[1])
         {
             $this->w = $size[1];
             $this->h = $size[0];
@@ -1272,17 +1272,17 @@ class FilePdf
 
             $this->wPt = $this->w * $this->k;
             $this->hPt = $this->h * $this->k;
-            $this->PageBreakTrigger = $this->h - $this->bMargin;
-            $this->CurOrientation = $orientation;
-            $this->CurPageSize = $size;
+            $this->pageBreakTrigger = $this->h - $this->bMargin;
+            $this->curOrientation = $orientation;
+            $this->curPageSize = $size;
         }
 
         if (
-            $orientation !== $this->DefOrientation || 
-            $size[0] !== $this->DefPageSize[0] || 
-            $size[1] !== $this->DefPageSize[1]) 
+            $orientation !== $this->defOrientation || 
+            $size[0] !== $this->defPageSize[0] || 
+            $size[1] !== $this->defPageSize[1]) 
         {
-            $this->PageInfo[$this->page]['size'] = [$this->wPt, $this->hPt];
+            $this->pageInfo[$this->page]['size'] = [$this->wPt, $this->hPt];
         }
 
         if ($rotation !== 0) {
@@ -1293,10 +1293,10 @@ class FilePdf
                 );
             }
 
-            $this->PageInfo[$this->page]['rotation'] = $rotation;
+            $this->pageInfo[$this->page]['rotation'] = $rotation;
         }
 
-        $this->CurRotation = $rotation;
+        $this->curRotation = $rotation;
     }
 
     protected function _endpage()
@@ -1423,13 +1423,13 @@ class FilePdf
 
     protected function _dounderline($x, $y, $txt)
     {
-        $up = $this->CurrentFont['up'];
-        $ut = $this->CurrentFont['ut'];
+        $up = $this->currentFont['up'];
+        $ut = $this->currentFont['ut'];
         $w = $this->GetStringWidth($txt)+$this->ws*substr_count($txt,' ');
         return sprintf(
             '%.2F %.2F %.2F %.2F re f',
-            $x * $this->k, ($this->h - ($y-$up/1000*$this->FontSize)) * $this->k,
-            $w * $this->k, -$ut/1000 * $this->FontSizePt
+            $x * $this->k, ($this->h - ($y-$up/1000*$this->fontSize)) * $this->k,
+            $w * $this->k, -$ut/1000 * $this->fontSizePt
         );
     }
 
@@ -1644,10 +1644,10 @@ default => throw new InvalidArgumentException($this->fpdfError . 'Unknown color 
             unset($data);
             $data = gzcompress($color);
             $info['smask'] = gzcompress($alpha);
-            $this->WithAlpha = true;
+            $this->withAlpha = true;
 
-            if($this->PDFVersion < '1.4'){
-                $this->PDFVersion = '1.4';
+            if($this->pdfVersion < '1.4'){
+                $this->pdfVersion = '1.4';
             }
         }
 
@@ -1806,14 +1806,14 @@ default => throw new InvalidArgumentException($this->fpdfError . 'Unknown color 
             } else {
 
                 $l = $this->links[$pl[4]];
-                $h = $this->PageInfo[$l[0]]['size'][1] ?? 
-                    (($this->DefOrientation === 'P') ? 
-                    $this->DefPageSize[1] * $this->k : 
-                    $this->DefPageSize[0] * $this->k);
+                $h = $this->pageInfo[$l[0]]['size'][1] ?? 
+                    (($this->defOrientation === 'P') ? 
+                    $this->defPageSize[1] * $this->k : 
+                    $this->defPageSize[0] * $this->k);
 
                 $s .= sprintf(
                     '/Dest [%d 0 R /XYZ 0 %.2F null]>>', 
-                    $this->PageInfo[$l[0]]['n'], 
+                    $this->pageInfo[$l[0]]['n'], 
                     $h - $l[1] * $this->k
                 );
             }
@@ -1829,16 +1829,16 @@ default => throw new InvalidArgumentException($this->fpdfError . 'Unknown color 
         $this->_put('<</Type /Page');
         $this->_put('/Parent 1 0 R');
 
-        if (isset($this->PageInfo[$n]['size'])) {
+        if (isset($this->pageInfo[$n]['size'])) {
             $this->_put(sprintf(
                 '/MediaBox [0 0 %.2F %.2F]',
-                $this->PageInfo[$n]['size'][0],
-                $this->PageInfo[$n]['size'][1]
+                $this->pageInfo[$n]['size'][0],
+                $this->pageInfo[$n]['size'][1]
             ));
         }
 
-        if (isset($this->PageInfo[$n]['rotation'])) {
-            $this->_put('/Rotate ' . $this->PageInfo[$n]['rotation']);
+        if (isset($this->pageInfo[$n]['rotation'])) {
+            $this->_put('/Rotate ' . $this->pageInfo[$n]['rotation']);
         }
 
         $this->_put('/Resources 2 0 R');
@@ -1855,16 +1855,16 @@ default => throw new InvalidArgumentException($this->fpdfError . 'Unknown color 
             $this->_put($s);
         }
 
-        if ($this->WithAlpha) {
+        if ($this->withAlpha) {
             $this->_put('/Group <</Type /Group /S /Transparency /CS /DeviceRGB>>');
         }
 
         $this->_put('/Contents ' . ($this->n + 1) . ' 0 R>>');
         $this->_put('endobj');
 
-        if (!empty($this->AliasNbPages)) {
+        if (!empty($this->aliasNbPages)) {
             $this->pages[$n] = str_replace(
-                $this->AliasNbPages, 
+                $this->aliasNbPages, 
                 (string) $this->page, $this->pages[$n]
             );
         }
@@ -1878,12 +1878,12 @@ default => throw new InvalidArgumentException($this->fpdfError . 'Unknown color 
     {
         $nb = $this->page;
         $n = $this->n;
-        $w = $this->DefPageSize[1];
-        $h = $this->DefPageSize[0];
+        $w = $this->defPageSize[1];
+        $h = $this->defPageSize[0];
 
         for($i=1;$i<=$nb;$i++){
 
-            $this->PageInfo[$i]['n'] = ++$n;
+            $this->pageInfo[$i]['n'] = ++$n;
             $n++;
 
             foreach($this->PageLinks[$i] as &$pl){
@@ -1902,16 +1902,16 @@ default => throw new InvalidArgumentException($this->fpdfError . 'Unknown color 
         $kids = '/Kids [';
 
         for($i=1;$i<=$nb;$i++){
-            $kids .= $this->PageInfo[$i]['n'].' 0 R ';
+            $kids .= $this->pageInfo[$i]['n'].' 0 R ';
         }
 
         $kids .= ']';
         $this->_put($kids);
         $this->_put('/Count '.$nb);
 
-        if($this->DefOrientation=='P'){
-            $w = $this->DefPageSize[0];
-            $h = $this->DefPageSize[1];
+        if($this->defOrientation=='P'){
+            $w = $this->defPageSize[0];
+            $h = $this->defPageSize[1];
         }
 
         $this->_put(sprintf('/MediaBox [0 0 %.2F %.2F]', $w*$this->k,$h*$this->k));
@@ -2248,7 +2248,7 @@ EOD;
 
     protected function _putinfo(): void
     {
-        $date = @date('YmdHisO',$this->CreationDate);
+        $date = @date('YmdHisO',$this->creationDate);
         $this->metadata['CreationDate'] = 'D:'.substr($date,0,-2)."'".substr($date,-2)."'";
 
         foreach($this->metadata as $key=>$value){
@@ -2258,12 +2258,12 @@ EOD;
 
     protected function _putcatalog(): void
     {
-        $n = $this->PageInfo[1]['n'];
+        $n = $this->pageInfo[1]['n'];
         $this->_put('/Type /Catalog');
         $this->_put('/Pages 1 0 R');
 
         // Tratando o OpenAction baseado no ZoomMode
-        switch ($this->ZoomMode) {
+        switch ($this->zoomMode) {
         case 'fullpage':
             $this->_put('/OpenAction [' . $n . ' 0 R /Fit]');
             break;
@@ -2274,10 +2274,10 @@ EOD;
             $this->_put('/OpenAction [' . $n . ' 0 R /XYZ null null 1]');
             break;
         default:
-            if (is_numeric($this->ZoomMode)) {
+            if (is_numeric($this->zoomMode)) {
                 $this->_put(''
                     . '/OpenAction [' . $n . ' 0 R /XYZ null null ' 
-                    . sprintf('%.2F', $this->ZoomMode / 100) . ']'
+                    . sprintf('%.2F', $this->zoomMode / 100) . ']'
                 );
             }
 
@@ -2285,7 +2285,7 @@ EOD;
         }
 
         // Tratando o LayoutMode
-        switch ($this->LayoutMode) {
+        switch ($this->layoutMode) {
         case 'single':
             $this->_put('/PageLayout /SinglePage');
             break;
@@ -2300,7 +2300,7 @@ EOD;
 
     protected function _putheader(): void
     {
-        $this->_put('%PDF-'.$this->PDFVersion);
+        $this->_put('%PDF-'.$this->pdfVersion);
     }
 
     protected function _puttrailer(): void
@@ -2312,7 +2312,7 @@ EOD;
 
     protected function _enddoc(): void
     {
-        $this->CreationDate = time();
+        $this->creationDate = time();
         $this->_putheader();
         $this->_putpages();
         $this->_putresources();
