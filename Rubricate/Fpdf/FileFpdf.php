@@ -1,10 +1,10 @@
 <?php
 
-namespace Rubricate\Pdf;
+namespace Rubricate\Fpdf;
 
 use InvalidArgumentException;
 
-class FilePdf
+class FileFpdf
 {
     const VERSION = '1.86';
     protected int $page = 0;               // current page number
