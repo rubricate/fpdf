@@ -1,9 +1,9 @@
 # Rubricate FPDF
 
 [![Maintainer](http://img.shields.io/badge/maintainer-@estefanionsantos-blue.svg?style=flat-square)](https://estefanionsantos.github.io/)
-[![Source Code](http://img.shields.io/badge/source-rublicate/fpdf-blue.svg?style=flat-square)](https://github.com/rublicate/fpdf)
-[![PHP from Packagist](https://img.shields.io/packagist/php-v/rubricate/fpdf.svg?style=flat-square)](https://packagist.org/packages/rublicate/fpdf)
-[![Latest Version](https://img.shields.io/github/release/rubricate/fpdf.svg?style=flat-square)](https://github.com/rublicate/fpdf/releases)
+[![Source Code](http://img.shields.io/badge/source-rubricate/fpdf-blue.svg?style=flat-square)](https://github.com/rubricate/fpdf)
+[![PHP from Packagist](https://img.shields.io/packagist/php-v/rubricate/fpdf.svg?style=flat-square)](https://packagist.org/packages/rubricate/fpdf)
+[![Latest Version](https://img.shields.io/github/release/rubricate/fpdf.svg?style=flat-square)](https://github.com/rubricate/fpdf/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
 [![Total Downloads](https://img.shields.io/packagist/dt/rubricate/fpdf.svg?style=flat-square)](https://packagist.org/packages/rubricate/fpdf)
 
