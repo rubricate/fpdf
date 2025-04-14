@@ -1,11 +1,16 @@
 {
-    "name": "setasign/fpdf",
-    "homepage": "http://www.fpdf.org",
-    "description": "FPDF is a PHP class which allows to generate PDF files with pure PHP. F from FPDF stands for Free: you may use it for any kind of usage and modify it to suit your needs.",
+    "name": "rubricate/pdf",
+    "homepage": "https://rubricate.github.io/components/pdf",
+    "description": "This component is a fork of (FPDF - Free PDF) and in this project the original class has been renamed to (FilePdf). You can use it for any kind of use and modify it to suit your needs.",
     "type": "library",
-    "keywords": ["pdf", "fpdf"],
+    "keywords": ["pdf", "fpdf", "filepdf"],
     "license": "MIT",
     "authors": [
+        {
+            "name": "Estefanio N Santos",
+            "email": "estefanions@gmail.com",
+            "homepage": "https://rubricate.github.io/components/pdf"
+        },
         {
             "name": "Olivier Plathey",
             "email": "oliver@fpdf.org",
@@ -13,11 +18,12 @@
         }
     ],
     "autoload": {
-        "classmap": [
-            "fpdf.php"
-        ]
+        "psr-4": {
+            "Rubricate\\Pdf\\": "Rubricate/Pdf/"
+        }
     },
     "require": {
+        "php": ">=5.6.0",
         "ext-zlib": "*",
         "ext-gd": "*"
     }
