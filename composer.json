@@ -1,5 +1,5 @@
 {
-    "name": "rubricate/pdf",
+    "name": "rubricate/fpdf",
     "homepage": "https://rubricate.github.io/components/pdf",
     "description": "This component is a fork of (FPDF - Free PDF) and in this project the original class has been renamed to (FilePdf). You can use it for any kind of use and modify it to suit your needs.",
     "type": "library",
@@ -9,21 +9,26 @@
         {
             "name": "Estefanio N Santos",
             "email": "estefanions@gmail.com",
-            "homepage": "https://rubricate.github.io/components/pdf"
+            "homepage": "https://rubricate.github.io/components/fpdf"
         },
         {
             "name": "Olivier Plathey",
             "email": "oliver@fpdf.org",
             "homepage": "http://fpdf.org/"
+        },
+        {
+            "name": "Jan Slabon",
+            "email": "jan.slabon@setasign.com",
+            "homepage": "https://www.setasign.com"
         }
     ],
     "autoload": {
         "psr-4": {
-            "Rubricate\\Pdf\\": "Rubricate/Pdf/"
+            "Rubricate\\Fpdf\\": "Rubricate/Fpdf/"
         }
     },
     "require": {
-        "php": ">=5.6.0",
+        "php": ">=8.0.0",
         "ext-zlib": "*",
         "ext-gd": "*"
     }
