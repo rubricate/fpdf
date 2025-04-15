@@ -7,6 +7,7 @@ use Rubricate\Fpdf\Trait\PropertyTraitFpdf;
 
 abstract class AbstractFileFpdf
 {
+    const VERSION = '1.86';
     use PropertyTraitFpdf;
 
     abstract public function header();

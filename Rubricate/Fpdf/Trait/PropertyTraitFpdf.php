@@ -4,7 +4,6 @@ namespace Rubricate\Fpdf\Trait;
 
 trait PropertyTraitFpdf
 {
-    const VERSION = '1.86';
     protected int $page = 0;               // current page number
     protected int $state = 0;              // current page number
     protected int $n = 2;                  // current object number
